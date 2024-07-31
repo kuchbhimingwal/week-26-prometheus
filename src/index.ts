@@ -1,15 +1,17 @@
 import express from "express";
-import { NextFunction, Request, Response } from "express";
+import client from "prom-client";
+import { requestCountMiddleware } from "./monitoring/requestCount";
 
 
 const app = express();
-
+app.use(requestCountMiddleware)
 app.use(express.json());
-app.get("/user", (req, res) => {
-    res.send({
-        name: "John Doe",
-        age: 25,
-    });
+app.get("/user", async (req, res) => {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+  res.send({
+      name: "John Doe",
+      age: 25,
+  });
 });
 
 app.post("/user", (req, res) => {
@@ -20,4 +22,10 @@ app.post("/user", (req, res) => {
     });
 });
 
+
+app.get("/metrics", async (req, res) => {
+    const metrics = await client.register.metrics();
+    res.set('Content-Type', client.register.contentType);
+    res.end(metrics);
+})
 app.listen(3000);
