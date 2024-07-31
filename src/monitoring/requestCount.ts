@@ -30,6 +30,7 @@ export const requestCountMiddleware = (req: Request, res: Response, next: NextFu
     res.on('finish', () => {
         const endTime = Date.now();
         const duration = endTime - startTime;
+        console.log("time for request "+duration+"ms");
  
         // Increment request counter
         requestCounter.inc({
